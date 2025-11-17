@@ -1,4 +1,6 @@
 from playwright.sync_api import Playwright # Импорт Playwright для взаимодействия с браузером
+from .test_cases import TestCases
+
 
 
 class App:
@@ -7,6 +9,8 @@ class App:
         self.context = self.browser.new_context()
         self.page = self.context.new_page()
         self.base_url = base_url
+        self.test_cases = TestCases(self.page)
+
 
     def goto(self, endpoint: str, use_base_url = True):
         if use_base_url:
@@ -30,15 +34,6 @@ class App:
         self.page.locator("#id_name").fill(test_name)
         self.page.get_by_role("textbox", name="Test description").fill(test_description)
         self. page.get_by_role("button", name="Create").click()
-
-
-    def check_test_exists(self, test_name: str):
-        return self.page.query_selector(f'css=tr >> text=\"{test_name}\"') is not None
-
-
-    def delete_test_by_name(self, test_name: str):
-        row = self.page.query_selector(f'*css=tr >> text=\"{test_name}\"')
-        row.query_selector('.deleteBtn').click()
 
 
     def close(self):

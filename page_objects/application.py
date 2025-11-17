@@ -1,4 +1,4 @@
-from playwright.sync_api import Playwright # Импорт Playwright для взаимодействия с браузером
+from playwright.sync_api import Playwright
 from .test_cases import TestCases
 
 

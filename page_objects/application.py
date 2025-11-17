@@ -25,7 +25,6 @@ class App:
 
     def login(self, login: str, password: str):
         self.page.get_by_role("textbox", name="Username:").fill(login)
-        #self.page.get_by_role("textbox", name="Password:").click()
         self.page.get_by_role("textbox", name="Password:").fill(password)
         self.page.get_by_role("button", name="Login").click()
 

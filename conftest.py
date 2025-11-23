@@ -1,9 +1,10 @@
 import json
 import os.path
+from settings import *
 from pytest import fixture
 from playwright.sync_api import Playwright, sync_playwright, expect
 from page_objects.application import App
-import settings
+
 
 @fixture(autouse=True, scope='function')
 def preconditions():
@@ -20,7 +21,7 @@ def get_playwright(): #
 @fixture(scope='session')
 def desktop_app(get_playwright, request):
     base_url = request.config.getoption('--base_url')
-    app = App(get_playwright, base_url=base_url)
+    app = App(get_playwright, base_url=base_url, **BROWSER_OPTIONS)
     app.goto('/')
     yield app
     app.close()
@@ -30,15 +31,39 @@ def desktop_app(get_playwright, request):
 def desktop_app_auth(desktop_app, request):
     secure = request.config.getoption('--secure')
     config = load_config(secure)
-    desktop_app.goto('/login')
-    desktop_app.login(**config)
-    yield desktop_app
+    app = desktop_app
+    app.goto('/login')
+    app.login(**config)
+    yield app
+
+
+
+@fixture(scope='session')
+def mobile_app(get_playwright, request):
+    base_url = request.config.getoption('--base_url')
+    device = request.config.getoption('--device')
+    app = App(get_playwright, base_url=base_url, device=device, **BROWSER_OPTIONS)
+    app.goto('/')
+    yield app
+    app.close()
+
+
+@fixture(scope='session')
+def mobile_app_auth(mobile_app, request):
+    secure = request.config.getoption('--secure')
+    config = load_config(secure)
+    app = mobile_app
+    app.goto('/login')
+    app .login(**config)
+    yield app
+
 
 #Хуки
 def pytest_addoption(parser):
-    parser.addoption('--base_url', action='store', default='http://127.0.0.1:8000')
     parser.addoption('--secure', action='store', default='secure.json')
-    #parser.addini('base_url', help='Base URL of site under test', default='http://127.0.0.1:8000')
+    parser.addoption('--device', action='store', default='')
+    parser.addoption('--base_url', action='store', default='http://127.0.0.1:8000')
+
 
 
 def load_config(file):
